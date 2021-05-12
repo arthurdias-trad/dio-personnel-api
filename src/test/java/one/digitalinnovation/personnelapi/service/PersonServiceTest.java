@@ -41,6 +41,9 @@ public class PersonServiceTest {
 
     private final PersonMapper personMapper = PersonMapper.INSTANCE;
 
+    private Long VALID_ID = 1L;
+    private Long INVALID_ID = 50L;
+
     @Test
     void whenPersonInformedThenItShouldBeCreated() throws PersonAlreadyRegisteredException {
         // Given
@@ -80,14 +83,13 @@ public class PersonServiceTest {
     @Test
     void whenValidIDInformedThenPersonShouldBeReturned() throws PersonNotFoundException {
         // Given
-        Long validID = 1L;
         Person expectedPersonFound = PersonUtils.createPersonEntity();
 
         // When
-        when(personRepository.findById(validID)).thenReturn(Optional.of(expectedPersonFound));
+        when(personRepository.findById(VALID_ID)).thenReturn(Optional.of(expectedPersonFound));
 
         // Then
-        PersonDTO personFound = personService.findById(validID);
+        PersonDTO personFound = personService.findById(VALID_ID);
 
         assertThat(personFound.getId(), is(equalTo(expectedPersonFound.getId())));
         assertThat(personFound.getCpf(), is(equalTo(expectedPersonFound.getCpf())));
@@ -97,17 +99,13 @@ public class PersonServiceTest {
 
     @Test
     void whenInvalidIDInformedThenExceptionShouldBeThrown() {
-        // Given
-        Long invalidID = 1L;
 
         // When
-        when(personRepository.findById(invalidID)).thenReturn(Optional.empty());
+        when(personRepository.findById(INVALID_ID)).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(PersonNotFoundException.class, () -> personService.findById(invalidID));
+        assertThrows(PersonNotFoundException.class, () -> personService.findById(INVALID_ID));
     }
-
-
 
     @Test
     void whenFindAllIsCalledThenAListOfPersonDTOsShouldBeReturned() {
@@ -125,5 +123,59 @@ public class PersonServiceTest {
         assertThat(foundPersonDTOList, is(not(empty())));
         assertThat(foundPersonDTOList.size(), is(equalTo(expectedPersonDTOList.size())));
         assertThat(foundPersonDTOList.get(0), is(equalTo(expectedPersonDTOList.get(0))));
+    }
+
+    @Test
+    void whenDeleteIsCalledWithValidIDThenPersonShouldBeDeleted() throws PersonNotFoundException {
+        // Given
+        Person personToDelete = PersonUtils.createPersonEntity();
+
+        // When
+        when(personRepository.findById(VALID_ID)).thenReturn(Optional.of(personToDelete));
+        doNothing().when(personRepository).deleteById(VALID_ID);
+
+        // Then
+        personService.deleteById(VALID_ID);
+
+        verify(personRepository, times(1)).findById(personToDelete.getId());
+        verify(personRepository, times(1)).deleteById(personToDelete.getId());
+    }
+
+    @Test
+    void whenDeleteIsCalledWithInvalidIDThenExceptionShouldBeThrown() {
+        // When
+        when(personRepository.findById(INVALID_ID)).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(PersonNotFoundException.class, () -> personService.deleteById(INVALID_ID));
+    }
+
+    @Test
+    void whenUpdateIsCalledWithValidIDThenUpdatePerson() throws PersonNotFoundException {
+        // Given
+        Person personToUpdate = PersonUtils.createPersonEntity();
+        PersonDTO personToUpdateDTO = PersonUtils.createPersonDTO();
+
+        // When
+        when(personRepository.findById(VALID_ID)).thenReturn(Optional.of(personToUpdate));
+        when(personRepository.save(personToUpdate)).thenReturn(personToUpdate);
+
+        // Then
+        personService.updateById(VALID_ID, personToUpdateDTO);
+
+        verify(personRepository, times(1)).findById(VALID_ID);
+        verify(personRepository, times(1)).save(personToUpdate);
+    }
+
+    @Test
+    void whenUpdateIsCalledWithInvalidIDThenExceptionShouldBeThrown() {
+        // Given
+        PersonDTO personToUpdateDTO = PersonUtils.createPersonDTO();
+
+        // When
+        when(personRepository.findById(INVALID_ID)).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(PersonNotFoundException.class, () -> personService.updateById(INVALID_ID, personToUpdateDTO));
     }
 }

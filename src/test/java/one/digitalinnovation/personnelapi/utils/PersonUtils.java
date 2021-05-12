@@ -21,7 +21,7 @@ public class PersonUtils {
                 .lastName(LAST_NAME)
                 .cpf(CPF)
                 .birthDate(BIRTHDATE)
-                .phones(Collections.singletonList(PhoneUtils.createPhoneDTO()))
+                .phones(Collections.singletonList(PhoneUtils.createPhoneEntity()))
                 .build();
     }
 
