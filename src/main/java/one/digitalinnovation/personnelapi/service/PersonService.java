@@ -28,7 +28,6 @@ public class PersonService {
         }
 
         Person personToSave = personMapper.toModel(personDTO);
-        System.out.println(personToSave);
 
         return personRepository.save(personToSave);
     }
