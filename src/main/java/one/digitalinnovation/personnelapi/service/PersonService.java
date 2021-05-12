@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import one.digitalinnovation.personnelapi.dto.PersonDTO;
 import one.digitalinnovation.personnelapi.dto.mapper.PersonMapper;
 import one.digitalinnovation.personnelapi.entity.Person;
+import one.digitalinnovation.personnelapi.exception.PersonAlreadyRegisteredException;
 import one.digitalinnovation.personnelapi.exception.PersonNotFoundException;
 import one.digitalinnovation.personnelapi.repository.PersonRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,16 +15,16 @@ import java.util.stream.Collectors;
 
 
 @Service
-@AllArgsConstructor
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class PersonService {
 
     private final PersonRepository personRepository;
 
     private final PersonMapper personMapper = PersonMapper.INSTANCE;
 
-    public Person create(PersonDTO personDTO) {
+    public Person create(PersonDTO personDTO) throws PersonAlreadyRegisteredException {
         if (verifyIfPersonExistsByCPF(personDTO.getCpf())) {
-            throw new IllegalArgumentException("CPF is already registered");
+            throw new PersonAlreadyRegisteredException("CPF is already registered");
         }
 
         Person personToSave = personMapper.toModel(personDTO);

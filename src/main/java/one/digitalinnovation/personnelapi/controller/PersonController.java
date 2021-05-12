@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import one.digitalinnovation.personnelapi.dto.MessageResponseDTO;
 import one.digitalinnovation.personnelapi.dto.PersonDTO;
 import one.digitalinnovation.personnelapi.entity.Person;
+import one.digitalinnovation.personnelapi.exception.PersonAlreadyRegisteredException;
 import one.digitalinnovation.personnelapi.exception.PersonNotFoundException;
 import one.digitalinnovation.personnelapi.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,8 @@ public class PersonController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody @Valid PersonDTO personDTO) {
+    public ResponseEntity<Void> create(@RequestBody @Valid PersonDTO personDTO)
+            throws PersonAlreadyRegisteredException {
         Person savedPerson = personService.create(personDTO);
 
         URI uri = ServletUriComponentsBuilder
