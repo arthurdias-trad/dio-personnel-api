@@ -24,14 +24,6 @@ public class PersonController {
 
     private final PersonService personService;
 
-    @GetMapping("/test")
-    public MessageResponseDTO test() {
-        return MessageResponseDTO
-                .builder()
-                .message("Testing!")
-                .build();
-    }
-
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody @Valid PersonDTO personDTO)
             throws PersonAlreadyRegisteredException {
